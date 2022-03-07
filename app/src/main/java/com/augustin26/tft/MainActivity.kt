@@ -17,7 +17,6 @@ import okhttp3.*
 import timber.log.Timber
 import java.io.IOException
 
-
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding : ActivityMainBinding
