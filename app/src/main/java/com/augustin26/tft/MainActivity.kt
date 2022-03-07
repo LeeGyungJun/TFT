@@ -1,11 +1,13 @@
 package com.augustin26.tft
 
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.os.Message
+import android.view.View
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import com.augustin26.tft.databinding.ActivityMainBinding
 import com.google.gson.JsonParser
@@ -15,10 +17,13 @@ import okhttp3.*
 import timber.log.Timber
 import java.io.IOException
 
+
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding : ActivityMainBinding
+    private var isRunning = false //검색중일 때 버튼막는 flag
     private var count = 20
+    private lateinit var summonerInfo : Bundle
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -27,7 +32,13 @@ class MainActivity : AppCompatActivity() {
         Logger.addLogAdapter(AndroidLogAdapter())
 
         binding.btnOk.setOnClickListener {
-            getSummonerPuuid()
+            if (binding.edtSummoner.text.isEmpty()) return@setOnClickListener
+            if (isRunning==false) {
+                summonerInfo = Bundle()
+                binding.progressCircular.visibility = View.VISIBLE
+                isRunning = true
+                getSummonerPuuid()
+            }
         }
     }
 
@@ -39,6 +50,8 @@ class MainActivity : AppCompatActivity() {
         okHttpClient.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 Logger.d("getSummonerPuuidFailed")
+                binding.progressCircular.visibility = View.INVISIBLE
+                isRunning = false
             }
 
             override fun onResponse(call: Call, response: Response) {
@@ -48,13 +61,73 @@ class MainActivity : AppCompatActivity() {
                             try {
                                 val body = response.body?.string()
                                 val rootObj = JsonParser().parse(body.toString()).asJsonObject
+                                summonerInfo.putString("name", rootObj.get("name").asString)
+                                summonerInfo.putString("id", rootObj.get("id").asString)
+                                summonerInfo.putString("profileIconId", rootObj.get("profileIconId").asString)
+                                summonerInfo.putString("summonerLevel", rootObj.get("summonerLevel").asString)
                                 getMatches(rootObj.get("puuid").asString)
+                                getEntry(rootObj.get("id").asString)
                                 Logger.d(rootObj)
                             } catch (e: Exception) {
                                 e.printStackTrace()
+                                isRunning = false
+                                binding.progressCircular.visibility = View.INVISIBLE
                             }
                         }
                     }.sendEmptyMessage(1)
+                }else {
+                    isRunning = false
+                    runOnUiThread {
+                        binding.progressCircular.visibility = View.INVISIBLE
+                        Toast.makeText(applicationContext, R.string.summoner_search_error, Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+        })
+    }
+
+    private fun getEntry(id: String) {
+        val url = Const().summonerEntry + id + "?api_key=" + Const().key
+        val okHttpClient = OkHttpClient();
+        val request = Request.Builder().url(url).build()
+
+        okHttpClient.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                Logger.d("getEntryFailed")
+                binding.progressCircular.visibility = View.INVISIBLE
+                isRunning = false
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                Timber.d("$response")
+                if (response.isSuccessful) {
+                    object : Handler(Looper.getMainLooper()) {
+                        override fun handleMessage(msg: Message) {
+                            try {
+                                val body = response.body?.string()
+                                val rootObj = JsonParser().parse(body.toString()).toString().split(",")
+                                if (rootObj.size!=1) {
+                                    summonerInfo.putString("tier", rootObj[2].split(":")[1].replace("\"",""))
+                                    summonerInfo.putString("rank", rootObj[3].split(":")[1].replace("\"",""))
+                                    summonerInfo.putString("leaguePoints", rootObj[6].split(":")[1])
+                                }else {
+                                    summonerInfo.putString("tier", "")
+                                    summonerInfo.putString("rank", "")
+                                    summonerInfo.putString("leaguePoints", "")
+                                }
+                            } catch (e: Exception) {
+                                e.printStackTrace()
+                                isRunning = false
+                                binding.progressCircular.visibility = View.INVISIBLE
+                            }
+                        }
+                    }.sendEmptyMessage(1)
+                }else {
+                    isRunning = false
+                    runOnUiThread {
+                        binding.progressCircular.visibility = View.INVISIBLE
+                        Toast.makeText(applicationContext, R.string.summoner_entry_error, Toast.LENGTH_SHORT).show()
+                    }
                 }
             }
         })
@@ -62,13 +135,14 @@ class MainActivity : AppCompatActivity() {
 
     private fun getMatches(puuid: String) {
         val url = Const().matchesUrl + puuid + "/ids?count=" + count + "&api_key=" + Const().key
-        Timber.d(url)
         val okHttpClient = OkHttpClient();
         val request = Request.Builder().url(url).build()
 
         okHttpClient.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 Logger.d("getMatchesFailed")
+                binding.progressCircular.visibility = View.INVISIBLE
+                isRunning = false
             }
 
             override fun onResponse(call: Call, response: Response) {
@@ -82,9 +156,17 @@ class MainActivity : AppCompatActivity() {
                                 Logger.d(rootObj[0].asString)
                             } catch (e: Exception) {
                                 e.printStackTrace()
+                                isRunning = false
+                                binding.progressCircular.visibility = View.INVISIBLE
                             }
                         }
                     }.sendEmptyMessage(1)
+                }else {
+                    isRunning = false
+                    runOnUiThread {
+                        binding.progressCircular.visibility = View.INVISIBLE
+                        Toast.makeText(applicationContext, R.string.matches_search_error, Toast.LENGTH_SHORT).show()
+                    }
                 }
             }
         })
@@ -99,6 +181,8 @@ class MainActivity : AppCompatActivity() {
         okHttpClient.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 Logger.d("getMatchFailed")
+                binding.progressCircular.visibility = View.INVISIBLE
+                isRunning = false
             }
 
             override fun onResponse(call: Call, response: Response) {
@@ -111,12 +195,23 @@ class MainActivity : AppCompatActivity() {
                                 Logger.d(rootObj)
                                 val intent = Intent(applicationContext, ResultActivity::class.java)
                                 intent.putExtra("result", rootObj.toString())
+                                intent.putExtra("summonerInfo", summonerInfo)
                                 startActivity(intent)
+                                binding.progressCircular.visibility = View.INVISIBLE
+                                isRunning = false
                             } catch (e: Exception) {
                                 e.printStackTrace()
+                                isRunning = false
+                                binding.progressCircular.visibility = View.INVISIBLE
                             }
                         }
                     }.sendEmptyMessage(1)
+                }else {
+                    isRunning = false
+                    runOnUiThread {
+                        binding.progressCircular.visibility = View.INVISIBLE
+                        Toast.makeText(applicationContext, R.string.match_search_error, Toast.LENGTH_SHORT).show()
+                    }
                 }
             }
         })

@@ -8,30 +8,44 @@
     </data>
 
 
-    <LinearLayout
-        android:gravity="center"
-        android:orientation="vertical"
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <TextView
-            android:text="TFT 전적검색"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+        <ProgressBar
+            android:id="@+id/progress_circular"
+            android:visibility="invisible"
+            android:layout_centerInParent="true"
+            android:layout_width="100dp"
+            android:layout_height="100dp"/>
 
-        <EditText
-            android:id="@+id/edt_summoner"
-            android:hint="소환사명을 입력해주세요."
-            android:layout_margin="20dp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+        <LinearLayout
+            android:gravity="center"
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
 
-        <Button
-            android:id="@+id/btn_ok"
-            android:text="검색"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            <TextView
+                android:text="TFT 전적검색"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
 
-    </LinearLayout>
+            <EditText
+                android:id="@+id/edt_summoner"
+                android:hint="소환사명을 입력해주세요."
+                android:text="퇴사했지롱"
+                android:layout_margin="20dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+            <Button
+                android:id="@+id/btn_ok"
+                android:text="검색"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+        </LinearLayout>
+
+    </RelativeLayout>
 
 </layout>
