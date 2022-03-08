@@ -16,7 +16,7 @@ import java.io.IOException
 class ResultActivity : AppCompatActivity() {
     private lateinit var binding : ActivityResultBinding
     private lateinit var summonerInfo : Bundle
-    private val okHttpClient = OkHttpClient()
+    private val const = Const()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,7 +32,7 @@ class ResultActivity : AppCompatActivity() {
     }
 
     private fun getSummonerIconImage(profileIconId : String) {
-        val url = Const().summonerIcon + profileIconId + ".png"
+        val url = const.summonerIcon + profileIconId + ".png"
         val okHttpClient = OkHttpClient()
         val request = Request.Builder().url(url).build()
 

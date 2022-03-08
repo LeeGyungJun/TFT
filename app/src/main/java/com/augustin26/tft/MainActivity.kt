@@ -5,10 +5,14 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.os.Message
+import android.util.Log
 import android.view.View
+import android.widget.Adapter
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.augustin26.tft.databinding.ActivityMainBinding
 import com.google.gson.JsonParser
 import com.orhanobut.logger.AndroidLogAdapter
@@ -21,15 +25,21 @@ import java.io.IOException
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding : ActivityMainBinding
+    private lateinit var recyclerView: RecyclerView
+    private lateinit var layoutManager: LinearLayoutManager
+    private lateinit var horizontalAdapterFactory : Adapter
+
     private var isRunning = false //검색중일 때 버튼막는 flag
     private var count = 20
+    private val const = Const()
     private lateinit var summonerInfo : Bundle
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
-        Timber.plant(Timber.DebugTree())
-        Logger.addLogAdapter(AndroidLogAdapter())
+
+        Timber.plant(Timber.DebugTree()) //팀버 로그
+        Logger.addLogAdapter(AndroidLogAdapter()) //로거 로그
 
         binding.btnOk.setOnClickListener {
             if (binding.edtSummoner.text.isEmpty()) return@setOnClickListener
@@ -40,10 +50,12 @@ class MainActivity : AppCompatActivity() {
                 getSummonerPuuid()
             }
         }
+
+
     }
 
     private fun getSummonerPuuid() {
-        val url = Const().summonerUrl + binding.edtSummoner.text.toString() + "?api_key=" + Const().key
+        val url = const.summonerUrl + binding.edtSummoner.text.toString() + "?api_key=" + const.key
         val okHttpClient = OkHttpClient()
         val request = Request.Builder().url(url).build()
 
@@ -76,10 +88,16 @@ class MainActivity : AppCompatActivity() {
                         }
                     }.sendEmptyMessage(1)
                 }else {
+                    val body = response.body?.string()
+                    val rootObj = JsonParser().parse(body.toString()).asJsonObject
                     isRunning = false
                     runOnUiThread {
                         binding.progressCircular.visibility = View.INVISIBLE
-                        Toast.makeText(applicationContext, R.string.summoner_search_error, Toast.LENGTH_SHORT).show()
+                        if (rootObj.get("status").asJsonObject.get("status_code").asInt==404) {
+                            Toast.makeText(applicationContext, R.string.summoner_search_error, Toast.LENGTH_SHORT).show()
+                        }else {
+                            Toast.makeText(applicationContext, R.string.invalidate_key, Toast.LENGTH_SHORT).show()
+                        }
                     }
                 }
             }
@@ -87,7 +105,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun getEntry(id: String) {
-        val url = Const().summonerEntry + id + "?api_key=" + Const().key
+        val url = const.summonerEntry + id + "?api_key=" + const.key
         val okHttpClient = OkHttpClient();
         val request = Request.Builder().url(url).build()
 
@@ -134,7 +152,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun getMatches(puuid: String) {
-        val url = Const().matchesUrl + puuid + "/ids?count=" + count + "&api_key=" + Const().key
+        val url = const.matchesUrl + puuid + "/ids?count=" + count + "&api_key=" + const.key
         val okHttpClient = OkHttpClient();
         val request = Request.Builder().url(url).build()
 
@@ -173,7 +191,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun getMatch(match: String) {
-        val url = Const().matchUrl + match + "?api_key=" + Const().key
+        val url = const.matchUrl + match + "?api_key=" + const.key
         Timber.d(url)
         val okHttpClient = OkHttpClient();
         val request = Request.Builder().url(url).build()
