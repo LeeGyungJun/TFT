@@ -5,14 +5,14 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.os.Message
-import android.util.Log
 import android.view.View
-import android.widget.Adapter
 import android.widget.Toast
+import androidx.annotation.Nullable
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.augustin26.tft.databinding.ActivityMainBinding
 import com.google.gson.JsonParser
 import com.orhanobut.logger.AndroidLogAdapter
@@ -21,16 +21,16 @@ import okhttp3.*
 import timber.log.Timber
 import java.io.IOException
 
-class MainActivity : AppCompatActivity() {
+
+class MainActivity : AppCompatActivity(), FavoriteClickInterface, FavoriteDeleteInterface  {
 
     private lateinit var binding : ActivityMainBinding
-    private lateinit var recyclerView: RecyclerView
-    private lateinit var layoutManager: LinearLayoutManager
-    private lateinit var horizontalAdapterFactory : Adapter
+
+    private lateinit var viewModal: SummonerViewModal
+    private val const = Const(this)
 
     private var isRunning = false //검색중일 때 버튼막는 flag
     private var count = 20
-    private val const = Const()
     private lateinit var summonerInfo : Bundle
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -46,15 +46,24 @@ class MainActivity : AppCompatActivity() {
                 summonerInfo = Bundle()
                 binding.progressCircular.visibility = View.VISIBLE
                 isRunning = true
-                getSummonerPuuid()
+                getSummonerPuuid(binding.edtSummoner.text.toString())
             }
         }
-
+        binding.favoriteRecyclerview.layoutManager = LinearLayoutManager(this)
+        (binding.favoriteRecyclerview.layoutManager as LinearLayoutManager).orientation = LinearLayoutManager.HORIZONTAL
+        val favoriteRVAdapter = FavoriteRVAdapter(this, this, this)
+        binding.favoriteRecyclerview.adapter = favoriteRVAdapter
+        viewModal = ViewModelProvider(this, ViewModelProvider.AndroidViewModelFactory.getInstance(application))[SummonerViewModal::class.java]
+        viewModal.allSummoners.observe(this, Observer { list ->
+            list?.let {
+                favoriteRVAdapter.updateList(it)
+            }
+        })
 
     }
 
-    private fun getSummonerPuuid() {
-        val url = const.summonerUrl + binding.edtSummoner.text.toString() + "?api_key=" + const.key
+    private fun getSummonerPuuid(name : String) {
+        val url = const.summonerUrl + name + "?api_key=" + const.key
         val okHttpClient = OkHttpClient()
         val request = Request.Builder().url(url).build()
 
@@ -76,6 +85,8 @@ class MainActivity : AppCompatActivity() {
                                 summonerInfo.putString("id", rootObj.get("id").asString)
                                 summonerInfo.putString("profileIconId", rootObj.get("profileIconId").asString)
                                 summonerInfo.putString("summonerLevel", rootObj.get("summonerLevel").asString)
+                                summonerInfo.putString("puuid", rootObj.get("puuid").asString)
+                                summonerInfo.putString("summonerid", rootObj.get("id").asString)
                                 getMatches(rootObj.get("puuid").asString)
                                 getEntry(rootObj.get("id").asString)
                                 Logger.d(rootObj)
@@ -104,7 +115,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun getEntry(id: String) {
-        val url = const.summonerEntry + id + "?api_key=" + const.key
+        val url = Const(this).summonerEntry + id + "?api_key=" + Const(this).key
         val okHttpClient = OkHttpClient();
         val request = Request.Builder().url(url).build()
 
@@ -232,5 +243,18 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         })
+    }
+
+    override fun onDeleteClick(summoner: Summoner) {
+        viewModal.deleteSummoner(summoner)
+    }
+
+    override fun onItemClick(summoner: Summoner) {
+        if (isRunning==false) {
+            summonerInfo = Bundle()
+            binding.progressCircular.visibility = View.VISIBLE
+            isRunning = true
+            getSummonerPuuid(summoner.name)
+        }
     }
 }

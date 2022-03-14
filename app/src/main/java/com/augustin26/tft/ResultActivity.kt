@@ -7,6 +7,7 @@ import android.os.Looper
 import android.os.Message
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.ViewModelProvider
 import com.augustin26.tft.databinding.ActivityResultBinding
 import okhttp3.*
 import timber.log.Timber
@@ -16,11 +17,15 @@ import java.io.IOException
 class ResultActivity : AppCompatActivity() {
     private lateinit var binding : ActivityResultBinding
     private lateinit var summonerInfo : Bundle
-    private val const = Const()
+    private lateinit var viewModal: SummonerViewModal
+
+    private val const = Const(this)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_result)
+
+        viewModal = ViewModelProvider(this, ViewModelProvider.AndroidViewModelFactory.getInstance(application)).get(SummonerViewModal::class.java)
 
         val result = intent.getStringExtra("result")
         binding.tvResult.text = result
@@ -29,6 +34,11 @@ class ResultActivity : AppCompatActivity() {
         binding.tvRank.text = summonerInfo.get("rank") as String
         binding.tvLeaguePoints.text = summonerInfo.get("leaguePoints") as String
         getSummonerIconImage(summonerInfo.get("profileIconId") as String)
+
+        binding.btnFavorite.setOnClickListener {
+            val updateSummoner = Summoner(summonerInfo.get("name") as String)
+            viewModal.addSummoner(updateSummoner)
+        }
     }
 
     private fun getSummonerIconImage(profileIconId : String) {
