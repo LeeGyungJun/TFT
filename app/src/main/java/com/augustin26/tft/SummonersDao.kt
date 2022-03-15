@@ -15,7 +15,7 @@ interface SummonersDao {
     @Delete
     suspend fun delete(summoner: Summoner)
 
-    @Query("Select * from summonersTable order by id ASC")
+    @Query("Select * from summonersTable order by name ASC")
     fun getAllSummoners(): LiveData<List<Summoner>>
 
 }

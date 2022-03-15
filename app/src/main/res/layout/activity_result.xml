@@ -7,130 +7,180 @@
             type="com.augustin26.tft.ResultActivity" />
     </data>
 
-    <LinearLayout
-        android:orientation="vertical"
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-
+        <ProgressBar
+            android:id="@+id/progress_circular"
+            android:layout_centerInParent="true"
+            android:layout_width="100dp"
+            android:layout_height="100dp"/>
         <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
-
-            <RelativeLayout
-                android:layout_margin="20dp"
-                android:layout_width="100dp"
-                android:layout_height="100dp">
-
-                <ImageView
-                    android:id="@+id/img_summoner_icon"
-                    android:src="@mipmap/ic_launcher"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent" />
-
-                <TextView
-                    android:id="@+id/tv_summoner_level"
-                    android:background="#BB9E9E9E"
-                    android:layout_alignParentRight="true"
-                    android:layout_alignParentBottom="true"
-                    android:padding="2dp"
-                    android:text="99"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/black"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
-
-            </RelativeLayout>
-
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
-
-                <TextView
-                    android:id="@+id/tv_summoner_name"
-                    android:layout_marginTop="20dp"
-                    android:layout_marginRight="20dp"
-                    android:text="킹갓제너럴엠페러충무공마제스티하이퍼울트라"
-                    android:maxLines="1"
-                    android:ellipsize="end"
-                    android:textSize="22sp"
-                    android:textStyle="bold"
-                    android:textColor="#000000"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
-
-                <Button
-                    android:id="@+id/btn_update"
-                    android:text="전적 갱신"
-                    android:textSize="10sp"
-                    android:backgroundTint="#378F66"
-                    android:layout_alignParentBottom="true"
-                    android:layout_marginBottom="10dp"
-                    android:layout_width="80dp"
-                    android:layout_height="40sp"/>
-
-                <Button
-                    android:id="@+id/btn_favorite"
-                    android:text="즐겨찾기"
-                    android:textSize="10sp"
-                    android:backgroundTint="#FFC107"
-                    android:layout_toEndOf="@+id/btn_update"
-                    android:layout_alignParentBottom="true"
-                    android:layout_marginBottom="10dp"
-                    android:layout_marginLeft="10dp"
-                    android:layout_width="80dp"
-                    android:layout_height="40sp"/>
-
-                <LinearLayout
-                    android:orientation="horizontal"
-                    android:layout_centerVertical="true"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content">
-
-                    <TextView
-                        android:id="@+id/tv_tier"
-                        android:text="123"
-                        android:textSize="14sp"
-                        android:textColor="@color/black"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content" />
-
-                    <TextView
-                        android:id="@+id/tv_rank"
-                        android:text="123"
-                        android:textSize="14sp"
-                        android:textColor="@color/black"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content" />
-
-                    <TextView
-                        android:id="@+id/tv_league_points"
-                        android:text="123"
-                        android:textSize="14sp"
-                        android:textColor="@color/black"
-                        android:layout_marginLeft="10dp"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content" />
-                </LinearLayout>
-
-            </RelativeLayout>
-
-        </LinearLayout>
-
-        <ScrollView
+            android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+                <RelativeLayout
+                    android:layout_margin="20dp"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp">
+
+                    <ImageView
+                        android:id="@+id/img_summoner_icon"
+                        android:src="@mipmap/ic_launcher"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent" />
+
+                    <TextView
+                        android:id="@+id/tv_summoner_level"
+                        android:background="#BB9E9E9E"
+                        android:layout_alignParentRight="true"
+                        android:layout_alignParentBottom="true"
+                        android:padding="2dp"
+                        android:text="99"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/black"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+                    <TextView
+                        android:id="@+id/tv_summoner_name"
+                        android:layout_marginTop="20dp"
+                        android:layout_marginRight="20dp"
+                        android:text="킹갓제너럴엠페러충무공마제스티하이퍼울트라"
+                        android:maxLines="1"
+                        android:ellipsize="end"
+                        android:textSize="22sp"
+                        android:textStyle="bold"
+                        android:textColor="#000000"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+
+                    <Button
+                        android:id="@+id/btn_update"
+                        android:text="전적 갱신"
+                        android:textSize="10sp"
+                        android:backgroundTint="#378F66"
+                        android:layout_alignParentBottom="true"
+                        android:layout_marginBottom="10dp"
+                        android:layout_width="80dp"
+                        android:layout_height="40sp"/>
+
+                    <Button
+                        android:id="@+id/btn_favorite"
+                        android:text="즐겨찾기"
+                        android:textSize="10sp"
+                        android:backgroundTint="#FFC107"
+                        android:layout_toEndOf="@+id/btn_update"
+                        android:layout_alignParentBottom="true"
+                        android:layout_marginBottom="10dp"
+                        android:layout_marginLeft="10dp"
+                        android:layout_width="80dp"
+                        android:layout_height="40sp"/>
+
+                    <LinearLayout
+                        android:orientation="horizontal"
+                        android:layout_centerVertical="true"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content">
+
+                        <TextView
+                            android:id="@+id/tv_tier"
+                            android:text="123"
+                            android:textSize="14sp"
+                            android:textColor="@color/black"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content" />
+
+                        <TextView
+                            android:id="@+id/tv_rank"
+                            android:text="123"
+                            android:textSize="14sp"
+                            android:textColor="@color/black"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content" />
+
+                        <TextView
+                            android:id="@+id/tv_league_points"
+                            android:text="123"
+                            android:textSize="14sp"
+                            android:textColor="@color/black"
+                            android:layout_marginLeft="10dp"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content" />
+                    </LinearLayout>
+
+                </RelativeLayout>
+
+            </LinearLayout>
+
             <TextView
-                android:id="@+id/tv_result"
-                android:padding="10dp"
-                android:text="123"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"/>
+                android:id="@+id/tv_summoner_eliminated"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+            <TextView
+                android:id="@+id/tv_summoner_gold_left"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+            <TextView
+                android:id="@+id/tv_summoner_1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+            <TextView
+                android:id="@+id/tv_summoner_2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+            <TextView
+                android:id="@+id/tv_summoner_3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+            <TextView
+                android:id="@+id/tv_summoner_4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+            <TextView
+                android:id="@+id/tv_summoner_5"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+            <TextView
+                android:id="@+id/tv_summoner_6"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+            <TextView
+                android:id="@+id/tv_summoner_7"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+            <TextView
+                android:id="@+id/tv_summoner_8"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+            <TextView
+                android:id="@+id/tv_game_datetime"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+            <TextView
+                android:id="@+id/tv_game_length"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
 
-        </ScrollView>
+    <!--        <androidx.recyclerview.widget.RecyclerView-->
+    <!--            android:id="@+id/matches_recyclerview"-->
+    <!--            android:layout_width="match_parent"-->
+    <!--            android:layout_height="match_parent"/>-->
 
-    </LinearLayout>
+        </LinearLayout>
+    </RelativeLayout>
 
 </layout>

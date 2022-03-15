@@ -4,13 +4,11 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.RecyclerView
 
-class FavoriteRVAdapter(private val context: Context, private val noteClickDeleteInterface: FavoriteDeleteInterface, private val noteClickInterface: FavoriteClickInterface) :
+class FavoriteRVAdapter(private val context: Context, private val summonerDeleteInterface: FavoriteDeleteInterface, private val summonerClickInterface: FavoriteClickInterface) :
     RecyclerView.Adapter<FavoriteRVAdapter.ViewHolder>() {
 
     private val allSummoners = ArrayList<Summoner>()
@@ -21,18 +19,18 @@ class FavoriteRVAdapter(private val context: Context, private val noteClickDelet
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val itemView = LayoutInflater.from(parent.context).inflate(R.layout.recycler_item, parent, false)
+        val itemView = LayoutInflater.from(parent.context).inflate(R.layout.favorite_item, parent, false)
         return ViewHolder(itemView)
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.tvName.text = allSummoners[position].name
         holder.btnDelete.setOnClickListener {
-            noteClickDeleteInterface.onDeleteClick(allSummoners[position])
+            summonerDeleteInterface.onDeleteClick(allSummoners[position])
         }
 
         holder.itemView.setOnClickListener {
-            noteClickInterface.onItemClick(allSummoners[position])
+            summonerClickInterface.onItemClick(allSummoners[position])
         }
     }
 
