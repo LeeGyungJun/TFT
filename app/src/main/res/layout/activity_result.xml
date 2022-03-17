@@ -26,7 +26,7 @@
                 android:layout_height="wrap_content">
 
                 <RelativeLayout
-                    android:layout_margin="20dp"
+                    android:layout_margin="16dp"
                     android:layout_width="100dp"
                     android:layout_height="100dp">
 
@@ -42,7 +42,7 @@
                         android:layout_alignParentRight="true"
                         android:layout_alignParentBottom="true"
                         android:padding="2dp"
-                        android:text="99"
+                        android:text=" "
                         android:textSize="16sp"
                         android:textStyle="bold"
                         android:textColor="@color/black"
@@ -59,7 +59,7 @@
                         android:id="@+id/tv_summoner_name"
                         android:layout_marginTop="20dp"
                         android:layout_marginRight="20dp"
-                        android:text="킹갓제너럴엠페러충무공마제스티하이퍼울트라"
+                        android:text=" "
                         android:maxLines="1"
                         android:ellipsize="end"
                         android:textSize="22sp"
@@ -98,24 +98,28 @@
 
                         <TextView
                             android:id="@+id/tv_tier"
-                            android:text="123"
+                            android:text=" "
                             android:textSize="14sp"
+                            android:textStyle="bold"
                             android:textColor="@color/black"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content" />
 
                         <TextView
                             android:id="@+id/tv_rank"
-                            android:text="123"
+                            android:paddingLeft="3dp"
+                            android:text=" "
                             android:textSize="14sp"
+                            android:textStyle="bold"
                             android:textColor="@color/black"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content" />
 
                         <TextView
                             android:id="@+id/tv_league_points"
-                            android:text="123"
+                            android:text=" "
                             android:textSize="14sp"
+                            android:textStyle="bold"
                             android:textColor="@color/black"
                             android:layout_marginLeft="10dp"
                             android:layout_width="wrap_content"
@@ -127,60 +131,19 @@
             </LinearLayout>
 
             <TextView
-                android:id="@+id/tv_summoner_eliminated"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
-            <TextView
-                android:id="@+id/tv_summoner_gold_left"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
-            <TextView
-                android:id="@+id/tv_summoner_1"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
-            <TextView
-                android:id="@+id/tv_summoner_2"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
-            <TextView
-                android:id="@+id/tv_summoner_3"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
-            <TextView
-                android:id="@+id/tv_summoner_4"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
-            <TextView
-                android:id="@+id/tv_summoner_5"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
-            <TextView
-                android:id="@+id/tv_summoner_6"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
-            <TextView
-                android:id="@+id/tv_summoner_7"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
-            <TextView
-                android:id="@+id/tv_summoner_8"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
-            <TextView
                 android:id="@+id/tv_game_datetime"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
-            <TextView
-                android:id="@+id/tv_game_length"
+                android:text="123123"
+                android:layout_margin="8dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"/>
 
-    <!--        <androidx.recyclerview.widget.RecyclerView-->
-    <!--            android:id="@+id/matches_recyclerview"-->
-    <!--            android:layout_width="match_parent"-->
-    <!--            android:layout_height="match_parent"/>-->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/summoner_recyclerview"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"/>
 
         </LinearLayout>
+
     </RelativeLayout>
 
 </layout>

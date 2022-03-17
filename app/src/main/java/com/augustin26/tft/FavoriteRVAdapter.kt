@@ -8,7 +8,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 
-class FavoriteRVAdapter(private val context: Context, private val summonerDeleteInterface: FavoriteDeleteInterface, private val summonerClickInterface: FavoriteClickInterface) :
+class FavoriteRVAdapter(private val summonerDeleteInterface: FavoriteDeleteInterface, private val summonerClickInterface: FavoriteClickInterface) :
     RecyclerView.Adapter<FavoriteRVAdapter.ViewHolder>() {
 
     private val allSummoners = ArrayList<Summoner>()

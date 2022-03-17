@@ -5,11 +5,9 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.os.Message
-import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.os.HandlerCompat.postDelayed
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -51,7 +49,7 @@ class MainActivity : AppCompatActivity(), FavoriteClickInterface, FavoriteDelete
         }
         binding.favoriteRecyclerview.layoutManager = LinearLayoutManager(this) //리사이클러뷰 레이아웃매니저 초기화
         (binding.favoriteRecyclerview.layoutManager as LinearLayoutManager).orientation = LinearLayoutManager.HORIZONTAL //레이아웃매니저의 orientation 변경
-        val favoriteRVAdapter = FavoriteRVAdapter(this, this, this) //즐겨찾기 어댑터 초기화
+        val favoriteRVAdapter = FavoriteRVAdapter( this, this) //즐겨찾기 어댑터 초기화
         binding.favoriteRecyclerview.adapter = favoriteRVAdapter //리사이클러뷰에 어댑터 설정
         viewModal = ViewModelProvider(this, ViewModelProvider.AndroidViewModelFactory.getInstance(application))[SummonerViewModal::class.java] //뷰모델 초기화
         viewModal.allSummoners.observe(this, Observer { list -> //옵저버 달기
@@ -59,7 +57,6 @@ class MainActivity : AppCompatActivity(), FavoriteClickInterface, FavoriteDelete
                 favoriteRVAdapter.updateList(it) //업데이트
             }
         })
-
     }
 
     //소환사 puuid

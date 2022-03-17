@@ -15,15 +15,20 @@
 
         <LinearLayout
             android:id="@+id/favorite_container"
+            android:background="@drawable/stroke_rounded"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
+            android:paddingRight="20dp"
+            android:paddingLeft="20dp"
             android:layout_alignParentBottom="true"
-            android:layout_margin="20dp"
+            android:layout_margin="6dp"
             android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
             <TextView
                 android:text="즐겨찾기"
-                android:layout_margin="10dp"
+                android:layout_marginBottom="10dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"/>
 
