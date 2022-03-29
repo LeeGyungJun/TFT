@@ -13,13 +13,17 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.augustin26.tft.databinding.ActivityMainBinding
+import com.google.gson.JsonElement
 import com.orhanobut.logger.AndroidLogAdapter
 import com.orhanobut.logger.Logger
 import okhttp3.*
 import org.json.JSONArray
+import org.json.JSONException
 import org.json.JSONObject
 import timber.log.Timber
 import java.io.IOException
+import java.util.*
+import kotlin.collections.ArrayList
 
 
 class MainActivity : AppCompatActivity(), FavoriteClickInterface, FavoriteDeleteInterface  {
@@ -64,6 +68,7 @@ class MainActivity : AppCompatActivity(), FavoriteClickInterface, FavoriteDelete
         val url = const.summonerUrl + name + "?api_key=" + const.key
         val okHttpClient = OkHttpClient()
         val request = Request.Builder().url(url).build()
+        Timber.d(url)
 
         okHttpClient.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
@@ -173,6 +178,7 @@ class MainActivity : AppCompatActivity(), FavoriteClickInterface, FavoriteDelete
         val url = const.matchesUrl + puuid + "/ids?count=" + count + "&api_key=" + const.key
         val okHttpClient = OkHttpClient();
         val request = Request.Builder().url(url).build()
+        Timber.d(url)
 
         okHttpClient.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
@@ -214,11 +220,14 @@ class MainActivity : AppCompatActivity(), FavoriteClickInterface, FavoriteDelete
         val url = const.matchUrl + match + "?api_key=" + const.key
         val okHttpClient = OkHttpClient();
         val request = Request.Builder().url(url).build()
+        Timber.d(url)
 
         okHttpClient.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 Logger.d("getMatchFailed")
-                binding.progressCircular.visibility = View.INVISIBLE
+                runOnUiThread {
+                    binding.progressCircular.visibility = View.INVISIBLE
+                }
                 isRunning = false
             }
 
@@ -232,12 +241,36 @@ class MainActivity : AppCompatActivity(), FavoriteClickInterface, FavoriteDelete
 
                                 val metadata = JSONObject(jsonObject.get("metadata").toString())
                                 val info = JSONObject(jsonObject.get("info").toString())
-                                val participants = JSONArray(metadata.get("participants").toString())
+                                val participantsUUID = JSONArray(metadata.get("participants").toString())
+                                val participants = JSONArray(info.get("participants").toString())
+
+                                //info의 participants 정보를 소트
+                                val sortedJsonArray = JSONArray()
+
+                                val jsonValues: MutableList<JSONObject> = ArrayList()
+                                for (i in 0 until participants.length()) {
+                                    jsonValues.add(participants.getJSONObject(i))
+                                }
+                                Collections.sort(jsonValues, object : Comparator<JSONObject?> {
+                                    private val KEY_NAME = "placement"
+                                    override fun compare(p0: JSONObject?, p1: JSONObject?): Int {
+                                        var valA = String()
+                                        var valB = String()
+                                        try {
+                                            valA = p0?.get(KEY_NAME).toString()
+                                            valB = p1?.get(KEY_NAME).toString()
+                                        } catch (e: JSONException) { }
+                                        return valA.compareTo(valB)
+                                    }
+                                })
+                                for (i in 0 until participants.length()) {
+                                    sortedJsonArray.put(jsonValues[i])
+                                }
 
                                 summonerInfo.putString("game_datetime", info.get("game_datetime").toString())
                                 summonerInfo.putString("game_length", info.get("game_length").toString())
-                                summonerInfo.putString("info", JSONArray(info.get("participants").toString()).toString())
-                                summonerInfo.putString("participants", participants.toString())
+                                summonerInfo.putString("info", sortedJsonArray.toString())
+                                summonerInfo.putString("participants", participantsUUID.toString())
                                 Logger.d(jsonObject)
                                 val intent = Intent(applicationContext, ResultActivity::class.java)
                                 intent.putExtra("summonerInfo", summonerInfo)

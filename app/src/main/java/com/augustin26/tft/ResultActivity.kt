@@ -27,8 +27,6 @@ class ResultActivity : AppCompatActivity() {
         viewModal = ViewModelProvider(this, ViewModelProvider.AndroidViewModelFactory.getInstance(application))[SummonerViewModal::class.java] //뷰모델 초기화
         summonerInfo = intent.getBundleExtra("summonerInfo")!!
         puuid = summonerInfo.get("puuid").toString()
-        val participants = summonerInfo.get("participants")
-        val info = JSONArray(summonerInfo.get("info").toString())
 
         binding.apply {
             progressCircular.visibility = View.INVISIBLE //뱅글뱅글

@@ -1,6 +1,5 @@
 package com.augustin26.tft
 
-import android.app.Activity
 import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
@@ -11,21 +10,24 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import androidx.lifecycle.LiveData
+import androidx.annotation.NonNull
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.orhanobut.logger.Logger
 import okhttp3.*
 import org.json.JSONArray
+import org.json.JSONException
 import org.json.JSONObject
-import timber.log.Timber
 import java.io.IOException
+import java.util.*
+import kotlin.collections.ArrayList
 
 
 class SummonerRVAdapter(private val context: Context, private val summonerInfo : Bundle) : RecyclerView.Adapter<SummonerRVAdapter.ViewHolder>() {
 
     val info = JSONArray(summonerInfo.get("info").toString())
     private val const = Const(context)
+
 
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         var tvPlacement: TextView = itemView.findViewById<TextView>(R.id.tv_placement)
@@ -34,7 +36,6 @@ class SummonerRVAdapter(private val context: Context, private val summonerInfo :
         var tvEliminated: TextView = itemView.findViewById<TextView>(R.id.tv_eliminated)
         var tvGoldLeft: TextView = itemView.findViewById<TextView>(R.id.tv_gold_left)
         val unitRecyclerView: RecyclerView = itemView.findViewById<RecyclerView>(R.id.unit_recyclerview)
-        val unitTierRecyclerView: RecyclerView = itemView.findViewById<RecyclerView>(R.id.unit_tier_recyclerview)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -78,15 +79,14 @@ class SummonerRVAdapter(private val context: Context, private val summonerInfo :
             in 2..4 -> holder.tvPlacement.setBackgroundColor(Color.parseColor("#6495ED"))
             in 5..8 -> holder.tvPlacement.setBackgroundColor(Color.parseColor("#999999"))
         }
+
         holder.tvLastRound.text = "라운드:" + jsonObject.get("last_round").toString()
         holder.tvEliminated.text = formatTime((jsonObject.get("time_eliminated").toString()).toDouble().toInt())
         holder.tvGoldLeft.text = jsonObject.get("gold_left").toString()
+
         holder.unitRecyclerView.layoutManager = LinearLayoutManager(context)
         (holder.unitRecyclerView.layoutManager as LinearLayoutManager).orientation = LinearLayoutManager.HORIZONTAL
-        holder.unitRecyclerView.adapter = UnitsRVAdapter(context, JSONArray(jsonObject.get("units").toString()))
-        holder.unitTierRecyclerView.layoutManager = LinearLayoutManager(context)
-        (holder.unitTierRecyclerView.layoutManager as LinearLayoutManager).orientation = LinearLayoutManager.HORIZONTAL
-        holder.unitTierRecyclerView.adapter = UnitsTierRVAdapter(context, JSONArray(jsonObject.get("units").toString()))
+        holder.unitRecyclerView.adapter = UnitsRVAdapter(context, jsonObject.getJSONArray("units"))
     }
 
     override fun getItemCount(): Int {
