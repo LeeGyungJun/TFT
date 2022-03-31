@@ -64,6 +64,11 @@ class UnitsRVAdapter(private val context: Context, private val units : JSONArray
             "Caitlyn" -> "https://cdn.lolchess.gg/upload/images/champions/Caitlyn_1635139772.png"
             "MissFortune" -> "https://cdn.lolchess.gg/upload/images/champions/MissFortune_1634784448.png"
             "Zeri" -> "https://cdn.lolchess.gg/upload/images/champions/Zeri_1643374799.png"
+            "Irelia" -> "https://cdn.lolchess.gg/upload/images/champions/Irelia_1643374879.png"
+            "Nocturne" -> "https://cdn.lolchess.gg/upload/images/champions/Nocturne_1643374939.png"
+            "Quinn" -> "https://cdn.lolchess.gg/upload/images/champions/Quinn_1634785593.png"
+            "Jayce" -> "https://cdn.lolchess.gg/upload/images/champions/Jayce_1635133912.png"
+            "Galio" -> "https://cdn.lolchess.gg/upload/images/champions/Galio_1634784242.png"
             else -> "${const.championIcon}$unitName.png"
         }
         Glide.with(context)//유닛 아이콘
@@ -89,6 +94,11 @@ class UnitsRVAdapter(private val context: Context, private val units : JSONArray
                 "2190"->"https://cdn.lolchess.gg/upload/images/items/ElderwoodHeirloom_1634786467.png" //돌연변이
                 "89"->"https://cdn.lolchess.gg/upload/images/items/YoumuusGhostblade_1634786635.png" //암살자
                 "78"->"https://cdn.lolchess.gg/upload/images/items/WarlordsBanner_1634786621.png" //화학공학
+                "2192"->"https://cdn.lolchess.gg/upload/images/items/MercenaryEmblem_1634868949.png" //용병
+                "70"->"https://cdn.lolchess.gg/upload/images/items/VanguardsCuirass_1645157511.png" //연미복
+                "28"->"https://cdn.lolchess.gg/upload/images/items/DuelistsZeal_1634786429.png" //도전자
+                "2195"->"https://cdn.lolchess.gg/upload/images/items/ScrapEmblem_1634869013.png" //고물상
+                "2197"->"https://cdn.lolchess.gg/upload/images/items/BruiserEmblem_1634868865.png" //난동꾼
                 "79"->"https://cdn.lolchess.gg/images/tft/item/Backhand.png" //덫발톱
                 "47"->"https://cdn.lolchess.gg/upload/images/items/Redemption_1642015166.png" //구원
                 "19"->"https://cdn.lolchess.gg/upload/images/items/InfinityEdge_ljmJbkViyMGC8IKr50os4jC8Ccl1ro2JbqXuvHqT.png" //무한의대검
@@ -122,6 +132,16 @@ class UnitsRVAdapter(private val context: Context, private val units : JSONArray
                 "26"->"https://cdn.lolchess.gg/upload/images/items/RunaansHurricane_1640058427.png" //루난
                 "33"->"https://cdn.lolchess.gg/upload/images/items/RabadonsDeathcap_1640058833.png" //라바돈
                 "9"->"https://cdn.lolchess.gg/upload/images/items/SparringGloves_1640059055.png" //연습용장갑
+                "35"->"https://cdn.lolchess.gg/upload/images/items/LocketoftheIronSolari_YOaQeJjb0jXhQnypCCvBBX2TNxqgICIFAp6lyvqz.png" //솔라리
+                "11"->"https://cdn.lolchess.gg/images/tft/item/LordsEdge.png" //죽검
+                "59"->"https://cdn.lolchess.gg/upload/images/items/Shroud_EgjmR23WSHz0nbvbfOk5UYUAmGDsNO0iEPNjl7za.png" //침장
+                "3"->"https://cdn.lolchess.gg/upload/images/items/NeedlesslyLargeRod_1640059008.png" //쓸큰지
+                "7"->"https://cdn.lolchess.gg/upload/images/items/1011_kcGXA0ld8Wx0BgfSCGAZfhWPir4tc24Oi3QNzP9B.png" //거인의허리띠
+                "57"->"https://cdn.lolchess.gg/upload/images/items/SunfireCape_1640059158.png" //태불망
+                "27"->"https://cdn.lolchess.gg/images/tft/item/ZzRotPortal.png" //즈롯차원문
+                "34"->"https://cdn.lolchess.gg/upload/images/items/3285_8H5TqcPL1z03UB6hTyP9x6N5hZ9jVJIcf6YhxpUg.png" //대천사
+                "1"->"https://cdn.lolchess.gg/upload/images/items/1038_H6kWlJGUpYCdjIDuXZR3DdEUWq4xEeV2TpHk4Jw4.png" //BF대검
+                "2"->"https://cdn.lolchess.gg/upload/images/items/RecurveBow_1640058784.png" //곡궁
                 else -> return@forEachIndexed
             }
             Glide.with(context)//소환사 아이콘
