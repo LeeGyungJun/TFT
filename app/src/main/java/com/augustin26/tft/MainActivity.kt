@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.os.Message
+import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -13,9 +14,9 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.augustin26.tft.databinding.ActivityMainBinding
-import com.google.gson.JsonElement
 import com.orhanobut.logger.AndroidLogAdapter
 import com.orhanobut.logger.Logger
+import kotlinx.coroutines.*
 import okhttp3.*
 import org.json.JSONArray
 import org.json.JSONException
@@ -23,7 +24,6 @@ import org.json.JSONObject
 import timber.log.Timber
 import java.io.IOException
 import java.util.*
-import kotlin.collections.ArrayList
 
 
 class MainActivity : AppCompatActivity(), FavoriteClickInterface, FavoriteDeleteInterface  {
@@ -48,7 +48,19 @@ class MainActivity : AppCompatActivity(), FavoriteClickInterface, FavoriteDelete
                 summonerInfo = Bundle() //번들을 새로 초기화
                 binding.progressCircular.visibility = View.VISIBLE // progressbar 돌리기
                 isRunning = true //검색중으로 바꿈
-                getSummonerPuuid(binding.edtSummoner.text.toString()) //puuid부터 검색
+
+                //코루틴 써봄 ㅎ
+                CoroutineScope(Dispatchers.IO).launch {
+                    val result1 = withContext(Dispatchers.IO) { getSummonerPuuid(binding.edtSummoner.text.toString()) }
+                    val result2 = withContext(Dispatchers.IO) {
+                        result1["id"]?.let { it-> getEntry(it) }
+                        withContext(Dispatchers.Default) {
+                            result1["puuid"]?.let { it -> getMatches(it) }
+                        }.toString()
+                    }
+                    getMatch(result2)
+                }
+
             }
         }
         binding.favoriteRecyclerview.layoutManager = LinearLayoutManager(this) //리사이클러뷰 레이아웃매니저 초기화
@@ -64,63 +76,54 @@ class MainActivity : AppCompatActivity(), FavoriteClickInterface, FavoriteDelete
     }
 
     //소환사 puuid
-    private fun getSummonerPuuid(name : String) {
+    private suspend fun getSummonerPuuid(name : String) : MutableMap<String, String> {
         val url = const.summonerUrl + name + "?api_key=" + const.key
         val okHttpClient = OkHttpClient()
         val request = Request.Builder().url(url).build()
         Timber.d(url)
 
-        okHttpClient.newCall(request).enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {
-                Logger.d("getSummonerPuuidFailed")
-                binding.progressCircular.visibility = View.INVISIBLE
-                isRunning = false
-            }
-
-            override fun onResponse(call: Call, response: Response) {
-                if (response.isSuccessful) {
-                    object : Handler(Looper.getMainLooper()) {
-                        override fun handleMessage(msg: Message) {
-                            try {
-                                val body = response.body?.string()
-                                val rootObj = JSONObject(body.toString())
-                                summonerInfo.putString("name", rootObj.get("name").toString())
-                                summonerInfo.putString("id", rootObj.get("id").toString())
-                                summonerInfo.putString("profileIconId", rootObj.get("profileIconId").toString())
-                                summonerInfo.putString("summonerLevel", rootObj.get("summonerLevel").toString())
-                                summonerInfo.putString("puuid", rootObj.get("puuid").toString())
-                                summonerInfo.putString("summonerid", rootObj.get("id").toString())
-                                getEntry(rootObj.get("id").toString())
-                                getMatches(rootObj.get("puuid").toString())
-                                Logger.d(rootObj)
-                            } catch (e: Exception) {
-                                e.printStackTrace()
-                                isRunning = false
-                                binding.progressCircular.visibility = View.INVISIBLE
-                            }
-                        }
-                    }.sendEmptyMessage(1)
-                }else {
-                    try {
-                        val body = response.body?.string()
-                        val rootObj = JSONObject(body.toString())
-                        isRunning = false
-                        runOnUiThread {
-                            binding.progressCircular.visibility = View.INVISIBLE
-                            if (JSONObject(rootObj.get("status").toString()).get("status_code").toString()=="404") {
-                                Toast.makeText(applicationContext, R.string.summoner_search_error, Toast.LENGTH_SHORT).show()
-                            }else {
-                                Toast.makeText(applicationContext, R.string.invalidate_key, Toast.LENGTH_SHORT).show()
-                            }
-                        }
-                    } catch (e: Exception) {
-                        e.printStackTrace()
-                        isRunning = false
+        val rs = CoroutineScope(Dispatchers.IO).async {
+            val map = mutableMapOf<String, String>()
+            val response : Response = okHttpClient.newCall(request).execute()
+            if (response.isSuccessful) {
+                try {
+                    val rootObj = JSONObject(response.body!!.string()) //response.body!!.string()은 딱 한 번만 호출해야함 로그찍는다고 한번 더 호출하면 에러남
+                    summonerInfo.putString("name", rootObj.get("name").toString())
+                    summonerInfo.putString("id", rootObj.get("id").toString())
+                    summonerInfo.putString("profileIconId", rootObj.get("profileIconId").toString())
+                    summonerInfo.putString("summonerLevel", rootObj.get("summonerLevel").toString())
+                    summonerInfo.putString("puuid", rootObj.get("puuid").toString())
+                    summonerInfo.putString("summonerid", rootObj.optString("id"))
+                    map["id"] = rootObj.get("id").toString()
+                    map["puuid"] = rootObj.get("puuid").toString()
+                    Logger.d(rootObj)
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    isRunning = false
+                    binding.progressCircular.visibility = View.INVISIBLE
+                }
+            }else {
+                try {
+                    val body = response.body?.string()
+                    val rootObj = JSONObject(body.toString())
+                    isRunning = false
+                    runOnUiThread {
                         binding.progressCircular.visibility = View.INVISIBLE
+                        if (JSONObject(rootObj.get("status").toString()).get("status_code").toString() == "404") {
+                            Toast.makeText(applicationContext, R.string.summoner_search_error, Toast.LENGTH_SHORT).show()
+                        } else {
+                            Toast.makeText(applicationContext, R.string.invalidate_key, Toast.LENGTH_SHORT).show()
+                        }
                     }
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    isRunning = false
+                    binding.progressCircular.visibility = View.INVISIBLE
                 }
             }
-        })
+            map
+        }
+        return rs.await()
     }
 
     //소환사 랭크
@@ -129,89 +132,83 @@ class MainActivity : AppCompatActivity(), FavoriteClickInterface, FavoriteDelete
         val okHttpClient = OkHttpClient();
         val request = Request.Builder().url(url).build()
 
-        okHttpClient.newCall(request).enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {
-                Logger.d("getEntryFailed")
-                binding.progressCircular.visibility = View.INVISIBLE
-                isRunning = false
-            }
-
-            override fun onResponse(call: Call, response: Response) {
-                Timber.d("$response")
-                if (response.isSuccessful) {
-                    object : Handler(Looper.getMainLooper()) {
-                        override fun handleMessage(msg: Message) {
-                            try {
-                                val body = response.body?.string()
-
-                                val jsonObject = JSONObject(JSONArray(body.toString())[0].toString())
-                                if (jsonObject.length()!=0) {
-                                    summonerInfo.putString("tier", jsonObject.get("tier").toString())
-                                    summonerInfo.putString("rank", jsonObject.get("rank").toString())
-                                    summonerInfo.putString("leaguePoints", jsonObject.get("leaguePoints").toString())
-                                }else {
-                                    summonerInfo.putString("tier", "")
-                                    summonerInfo.putString("rank", "")
-                                    summonerInfo.putString("leaguePoints", "")
-                                }
-                            } catch (e: Exception) {
-                                e.printStackTrace()
-                                summonerInfo.putString("tier", "")
-                                summonerInfo.putString("rank", "")
-                                summonerInfo.putString("leaguePoints", "")
-                            }
-                        }
-                    }.sendEmptyMessage(1)
-                }else {
+        CoroutineScope(Dispatchers.IO).launch {
+            val response = okHttpClient.newCall(request).execute()
+            if (response.isSuccessful) {
+                try {
+                    val body = response.body!!.string()
+                    val jsonObject = JSONObject(JSONArray(body.toString())[0].toString())
+                    if (jsonObject.length()!=0) {
+                        summonerInfo.putString("tier", jsonObject.get("tier").toString())
+                        summonerInfo.putString("rank", jsonObject.get("rank").toString())
+                        summonerInfo.putString("leaguePoints", jsonObject.get("leaguePoints").toString())
+                    }else {
+                        summonerInfo.putString("tier", "")
+                        summonerInfo.putString("rank", "")
+                        summonerInfo.putString("leaguePoints", "")
+                    }
+                    Logger.d(jsonObject)
+                    Log.d("getEntry","$jsonObject")
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    summonerInfo.putString("tier", "")
+                    summonerInfo.putString("rank", "")
+                    summonerInfo.putString("leaguePoints", "")
+                }
+            }else {
+                try {
                     isRunning = false
                     runOnUiThread {
                         binding.progressCircular.visibility = View.INVISIBLE
                         Toast.makeText(applicationContext, R.string.summoner_entry_error, Toast.LENGTH_SHORT).show()
                     }
+                } catch (e: Exception) {
+                    Logger.d("getEntryFailed")
+                    binding.progressCircular.visibility = View.INVISIBLE
+                    isRunning = false
                 }
             }
-        })
+        }
     }
 
     //소환사 경기기록
-    private fun getMatches(puuid: String) {
+    private suspend fun getMatches(puuid: String) : String {
         val url = const.matchesUrl + puuid + "/ids?count=" + count + "&api_key=" + const.key
         val okHttpClient = OkHttpClient();
         val request = Request.Builder().url(url).build()
         Timber.d(url)
 
-        okHttpClient.newCall(request).enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {
-                Logger.d("getMatchesFailed")
-                binding.progressCircular.visibility = View.INVISIBLE
-                isRunning = false
-            }
-
-            override fun onResponse(call: Call, response: Response) {
-                if (response.isSuccessful) {
-                    object : Handler(Looper.getMainLooper()) {
-                        override fun handleMessage(msg: Message) {
-                            try {
-                                val body = response.body?.string()
-                                val rootObj = JSONArray(body.toString())
-                                getMatch(rootObj[0].toString())
-                                Logger.d(rootObj.toString())
-                            } catch (e: Exception) {
-                                e.printStackTrace()
-                                isRunning = false
-                                binding.progressCircular.visibility = View.INVISIBLE
-                            }
-                        }
-                    }.sendEmptyMessage(1)
-                }else {
+        val rs = CoroutineScope(Dispatchers.IO).async {
+            val response = okHttpClient.newCall(request).execute()
+            var str = ""
+            if (response.isSuccessful) {
+                try {
+                    val body = response.body?.string()
+                    val rootObj = JSONArray(body.toString())
+                    str = rootObj[0].toString()
+                    //getMatch(rootObj[0].toString())
+                    Log.d("getMatches","$rootObj")
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    isRunning = false
+                    binding.progressCircular.visibility = View.INVISIBLE
+                }
+            }else {
+                try {
                     isRunning = false
                     runOnUiThread {
                         binding.progressCircular.visibility = View.INVISIBLE
                         Toast.makeText(applicationContext, R.string.matches_search_error, Toast.LENGTH_SHORT).show()
                     }
+                }catch (e: Exception) {
+                    Logger.d("getMatchesFailed")
+                    binding.progressCircular.visibility = View.INVISIBLE
+                    isRunning = false
                 }
             }
-        })
+            str
+        }
+        return rs.await()
     }
 
 
@@ -221,6 +218,7 @@ class MainActivity : AppCompatActivity(), FavoriteClickInterface, FavoriteDelete
         val okHttpClient = OkHttpClient();
         val request = Request.Builder().url(url).build()
         Timber.d(url)
+        Log.d("getMatch","$match")
 
         okHttpClient.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
@@ -251,6 +249,7 @@ class MainActivity : AppCompatActivity(), FavoriteClickInterface, FavoriteDelete
                                 for (i in 0 until participants.length()) {
                                     jsonValues.add(participants.getJSONObject(i))
                                 }
+                                //등수 오름차순 JSON Sort
                                 Collections.sort(jsonValues, object : Comparator<JSONObject?> {
                                     private val KEY_NAME = "placement"
                                     override fun compare(p0: JSONObject?, p1: JSONObject?): Int {
@@ -306,7 +305,18 @@ class MainActivity : AppCompatActivity(), FavoriteClickInterface, FavoriteDelete
             summonerInfo = Bundle()
             binding.progressCircular.visibility = View.VISIBLE
             isRunning = true
-            getSummonerPuuid(summoner.name)
+            //getSummonerPuuid(summoner.name)
+
+            CoroutineScope(Dispatchers.IO).launch {
+                val result1 = withContext(Dispatchers.IO) { getSummonerPuuid(summoner.name) }
+                val result2 = withContext(Dispatchers.IO) {
+                    result1["id"]?.let { it-> getEntry(it) }
+                    withContext(Dispatchers.Default) {
+                        result1["puuid"]?.let { it -> getMatches(it) }
+                    }.toString()
+                }
+                getMatch(result2)
+            }
         }
     }
 }
