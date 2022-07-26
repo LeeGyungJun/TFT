@@ -3,7 +3,7 @@ package com.augustin26.tft
 import android.content.Context
 
 class Const(context : Context) {
-    val key = "RGAPI-753b2d1f-fc87-49b1-915b-84313bdb5c4d"
+    val key = ""
     val matchesUrl = "https://asia.api.riotgames.com/tft/match/v1/matches/by-puuid/" ///ids?count=20&api_key=
     val matchUrl = "https://asia.api.riotgames.com/tft/match/v1/matches/" //?api_key=
     val summonerUrl = "https://kr.api.riotgames.com/tft/summoner/v1/summoners/by-name/" //?api_key=
