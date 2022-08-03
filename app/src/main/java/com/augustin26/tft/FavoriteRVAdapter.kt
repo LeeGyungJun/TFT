@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 
 class FavoriteRVAdapter(private val summonerDeleteInterface: FavoriteDeleteInterface, private val summonerClickInterface: FavoriteClickInterface) :
@@ -38,10 +39,17 @@ class FavoriteRVAdapter(private val summonerDeleteInterface: FavoriteDeleteInter
         return allSummoners.size
     }
 
+    // notifyDataSetChanged() 쓰면 바보
     fun updateList(newList: List<Summoner>) {
-        allSummoners.clear()
-        allSummoners.addAll(newList)
-        notifyDataSetChanged()
-    }
+        newList.let {
+            val diffCallback = DiffUtilCallback(this.allSummoners, newList)
+            val diffResult = DiffUtil.calculateDiff(diffCallback)
 
+            this.allSummoners.run {
+                clear()
+                addAll(newList)
+                diffResult.dispatchUpdatesTo(this@FavoriteRVAdapter)
+            }
+        }
+    }
 }

@@ -50,9 +50,13 @@ class MainActivity : AppCompatActivity(), FavoriteClickInterface, FavoriteDelete
                 isRunning = true //검색중으로 바꿈
 
                 //코루틴 써봄 ㅎ
-                CoroutineScope(Dispatchers.IO).launch {
-                    val result1 = withContext(Dispatchers.IO) { getSummonerPuuid(binding.edtSummoner.text.toString()) }
-                    val result2 = withContext(Dispatchers.IO) {
+                val ceh = CoroutineExceptionHandler { coroutineContext, exception ->
+                    println("에러 내용: $exception")
+                }
+                CoroutineScope(Dispatchers.IO+ceh).launch {
+                    val scope = Dispatchers.IO
+                    val result1 = withContext(scope) { getSummonerPuuid(binding.edtSummoner.text.toString()) }
+                    val result2 = withContext(scope) {
                         result1["id"]?.let { it-> getEntry(it) }
                         withContext(Dispatchers.Default) {
                             result1["puuid"]?.let { it -> getMatches(it) }
@@ -310,9 +314,9 @@ class MainActivity : AppCompatActivity(), FavoriteClickInterface, FavoriteDelete
             CoroutineScope(Dispatchers.IO).launch {
                 val result1 = withContext(Dispatchers.IO) { getSummonerPuuid(summoner.name) }
                 val result2 = withContext(Dispatchers.IO) {
-                    result1["id"]?.let { it-> getEntry(it) }
+                    result1["id"]?.let { getEntry(it) }
                     withContext(Dispatchers.Default) {
-                        result1["puuid"]?.let { it -> getMatches(it) }
+                        result1["puuid"]?.let { getMatches(it) }
                     }.toString()
                 }
                 getMatch(result2)
