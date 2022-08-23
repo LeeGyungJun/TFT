@@ -8,17 +8,13 @@ import android.widget.ImageView
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.orhanobut.logger.Logger
 import org.json.JSONArray
-import org.json.JSONException
 import org.json.JSONObject
-import java.util.*
 import kotlin.collections.ArrayList
-
 
 class UnitsRVAdapter(private val context: Context, private val units : JSONArray) : RecyclerView.Adapter<UnitsRVAdapter.ViewHolder>() {
 
-    private val const = Const(context)
+    private val const = Const()
 
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val imgUnitTier: ImageView = itemView.findViewById<ImageView>(R.id.img_unit_tier)

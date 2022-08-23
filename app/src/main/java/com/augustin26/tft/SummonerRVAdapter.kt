@@ -10,23 +10,18 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import androidx.annotation.NonNull
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.orhanobut.logger.Logger
 import okhttp3.*
 import org.json.JSONArray
-import org.json.JSONException
 import org.json.JSONObject
 import java.io.IOException
-import java.util.*
-import kotlin.collections.ArrayList
-
 
 class SummonerRVAdapter(private val context: Context, private val summonerInfo : Bundle) : RecyclerView.Adapter<SummonerRVAdapter.ViewHolder>() {
 
     val info = JSONArray(summonerInfo.get("info").toString())
-    private val const = Const(context)
+    private val const = Const()
 
 
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {

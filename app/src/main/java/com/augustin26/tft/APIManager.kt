@@ -1,85 +1,106 @@
 package com.augustin26.tft
 
-import android.content.Context
-import android.os.Handler
-import android.os.Looper
-import android.os.Message
-import com.orhanobut.logger.Logger
+import android.util.Log
+import kotlinx.coroutines.*
 import okhttp3.*
+import org.json.JSONArray
 import org.json.JSONObject
-import java.io.IOException
+import timber.log.Timber
 
-class APIManager(context : Context) {
+class APIManager {
 
-    private val const = Const(context)
+    private val const = Const()
+    private val okHttpClient = OkHttpClient()
+
+    private var count = 20 //getMatches 검색 개수
 
     private lateinit var url : String
-    private lateinit var okHttpClient: OkHttpClient
     private lateinit var request: Request
+    private lateinit var jsonObject: JSONObject
+    private lateinit var jsonArray: JSONArray
 
-    fun getSummonerPuuid(name : String) : String {
-        var result = ""
+    //소환사 puuid
+    suspend fun getSummonerPuuid(name : String) : JSONObject {
         url = const.summonerUrl + name + "?api_key=" + const.key
-        okHttpClient = OkHttpClient()
         request = Request.Builder().url(url).build()
+        Timber.d(url)
 
-        okHttpClient.newCall(request).enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {
-                result = "SummonerPuuidFailed1"
-                e.printStackTrace()
-            }
-
-            override fun onResponse(call: Call, response: Response) {
+        return withContext(Dispatchers.IO) {
+            val response = okHttpClient.newCall(request).execute()
+            try {
                 if (response.isSuccessful) {
-                    object : Handler(Looper.getMainLooper()) {
-                        override fun handleMessage(msg: Message) {
-                            try {
-                                val body = response.body?.string()
-                                result = JSONObject(body.toString()).toString()
-                                Logger.d(result)
-                            } catch (e: Exception) {
-                                e.printStackTrace()
-                            }
-                        }
-                    }.sendEmptyMessage(1)
+                    jsonObject = JSONObject(response.body!!.string())
                 }else {
-                    result = "SummonerPuuidFailed2"
+                    jsonObject = JSONObject(response.body!!.string())
                 }
+            } catch (e: Exception) {
+                Log.e("getSummonerPuuid", "$e")
             }
-        })
-        return result
+            jsonObject
+        }
     }
 
-    fun getSummonerNameByPuuid(puuid : String) : String{
-        var result = ""
-        val url = const.summonerUrlByPuuid + puuid + "?api_key=" + const.key
-        val okHttpClient = OkHttpClient()
-        val request = Request.Builder().url(url).build()
+    //소환사 랭크
+    suspend fun getEntry(id: String) : JSONObject {
+        url = const.summonerEntry + id + "?api_key=" + const.key
+        request = Request.Builder().url(url).build()
+        Timber.d(url)
 
-        okHttpClient.newCall(request).enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {
-                result = "SummonerByPuuidFailed1"
-                e.printStackTrace()
-            }
-
-            override fun onResponse(call: Call, response: Response) {
+        return withContext(Dispatchers.IO) {
+            val response = okHttpClient.newCall(request).execute()
+            try {
+                val body = response.body!!.string()
                 if (response.isSuccessful) {
-                    object : Handler(Looper.getMainLooper()) {
-                        override fun handleMessage(msg: Message) {
-                            try {
-                                val body = response.body?.string()
-                                val rootObj = JSONObject(body.toString())
-                                result = rootObj.get("name").toString()
-                            } catch (e: Exception) {
-                                e.printStackTrace()
-                            }
-                        }
-                    }.sendEmptyMessage(1)
+                    jsonObject = JSONObject(JSONArray(body)[0].toString())
                 }else {
-                    result = "SummonerByPuuidFailed2"
+                    jsonObject = JSONObject(JSONArray(body)[0].toString())
                 }
+            } catch (e: Exception) {
+                Log.e("getSummonerPuuid", "$e")
             }
-        })
-        return result
+            jsonObject
+        }
+    }
+
+    //소환사 경기기록
+    suspend fun getMatches(puuid: String) : JSONArray {
+        url = const.matchesUrl + puuid + "/ids?count=" + count + "&api_key=" + const.key
+        request = Request.Builder().url(url).build()
+        Timber.d(url)
+
+        return withContext(Dispatchers.IO) {
+            val response = okHttpClient.newCall(request).execute()
+            try {
+                if (response.isSuccessful) {
+                    jsonArray = JSONArray(response.body!!.string())
+                }else {
+                    jsonArray = JSONArray(response.body!!.string())
+                }
+            } catch (e: Exception) {
+                Log.e("getMatches", "$e")
+            }
+            jsonArray
+        }
+    }
+
+    //경기 정보
+    suspend fun getMatch(match: String) : JSONObject {
+        url = const.matchUrl + match + "?api_key=" + const.key
+        request = Request.Builder().url(url).build()
+        Timber.d(url)
+
+        return withContext(Dispatchers.IO) {
+            val response = okHttpClient.newCall(request).execute()
+            try {
+                if (response.isSuccessful) {
+                    jsonObject = JSONObject(response.body!!.string())
+                }else {
+                    jsonObject = JSONObject(response.body!!.string())
+                }
+            } catch (e: Exception) {
+                Log.e("getMatch", "$e")
+            }
+            jsonObject
+        }
     }
 }
