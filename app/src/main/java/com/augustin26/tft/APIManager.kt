@@ -19,6 +19,11 @@ class APIManager {
     private lateinit var jsonObject: JSONObject
     private lateinit var jsonArray: JSONArray
 
+    /**
+      okhttp에서 동기처리는 execute, 비동기처리는 enqueue
+      코루틴 자체가 비동기 처리이기 때문에 execute를 사용해야한다.
+     */
+
     //소환사 puuid
     suspend fun getSummonerPuuid(name : String) : JSONObject {
         url = const.summonerUrl + name + "?api_key=" + const.key
