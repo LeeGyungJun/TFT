@@ -9,7 +9,7 @@ import timber.log.Timber
 
 class APIManager {
 
-    private val const = Const()
+    private val tft = TFT()
     private val okHttpClient = OkHttpClient()
 
     private var count = 20 //getMatches 검색 개수
@@ -19,9 +19,14 @@ class APIManager {
     private lateinit var jsonObject: JSONObject
     private lateinit var jsonArray: JSONArray
 
+    /**
+      okhttp에서 동기처리는 execute, 비동기처리는 enqueue
+      코루틴 자체가 비동기 처리이기 때문에 execute를 사용해야한다.
+     */
+
     //소환사 puuid
     suspend fun getSummonerPuuid(name : String) : JSONObject {
-        url = const.summonerUrl + name + "?api_key=" + const.key
+        url = tft.summonerUrl + name + "?api_key=" + tft.key
         request = Request.Builder().url(url).build()
         Timber.d(url)
 
@@ -42,7 +47,7 @@ class APIManager {
 
     //소환사 랭크
     suspend fun getEntry(id: String) : JSONObject {
-        url = const.summonerEntry + id + "?api_key=" + const.key
+        url = tft.summonerEntry + id + "?api_key=" + tft.key
         request = Request.Builder().url(url).build()
         Timber.d(url)
 
@@ -64,7 +69,7 @@ class APIManager {
 
     //소환사 경기기록
     suspend fun getMatches(puuid: String) : JSONArray {
-        url = const.matchesUrl + puuid + "/ids?count=" + count + "&api_key=" + const.key
+        url = tft.matchesUrl + puuid + "/ids?count=" + count + "&api_key=" + tft.key
         request = Request.Builder().url(url).build()
         Timber.d(url)
 
@@ -85,7 +90,7 @@ class APIManager {
 
     //경기 정보
     suspend fun getMatch(match: String) : JSONObject {
-        url = const.matchUrl + match + "?api_key=" + const.key
+        url = tft.matchUrl + match + "?api_key=" + tft.key
         request = Request.Builder().url(url).build()
         Timber.d(url)
 

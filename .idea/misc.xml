@@ -3,7 +3,9 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Users/user/AndroidStudioProjects/MyProject/TFT/app/src/main/res/drawable/rarity1_rounded.xml" value="0.2805" />
         <entry key="..\:/Users/user/AndroidStudioProjects/MyProject/TFT/app/src/main/res/layout/activity_main.xml" value="0.17028985507246377" />
+        <entry key="..\:/Users/user/AndroidStudioProjects/MyProject/TFT/app/src/main/res/layout/activity_result.xml" value="0.36614583333333334" />
       </map>
     </option>
   </component>

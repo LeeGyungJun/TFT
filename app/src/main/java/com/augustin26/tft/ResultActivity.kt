@@ -17,7 +17,7 @@ class ResultActivity : AppCompatActivity() {
     private lateinit var summonerInfo : Bundle
     private lateinit var viewModal: SummonerViewModal
 
-    private val const = Const()
+    private val tft = TFT()
     private lateinit var puuid : String
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -45,7 +45,7 @@ class ResultActivity : AppCompatActivity() {
             summonerRecyclerview.adapter = favoriteRVAdapter //리사이클러뷰에 어댑터 설정
         }
 
-        val url = const.summonerIcon + summonerInfo.getString("profileIconId") + ".png"
+        val url = tft.summonerIcon + summonerInfo.getString("profileIconId") + ".png"
 
         Glide.with(this)//소환사 아이콘
             .load(url)

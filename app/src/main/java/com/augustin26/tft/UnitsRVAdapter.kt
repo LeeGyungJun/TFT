@@ -14,7 +14,7 @@ import kotlin.collections.ArrayList
 
 class UnitsRVAdapter(private val context: Context, private val units : JSONArray) : RecyclerView.Adapter<UnitsRVAdapter.ViewHolder>() {
 
-    private val const = Const()
+    private val tft = TFT()
 
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val imgUnitTier: ImageView = itemView.findViewById<ImageView>(R.id.img_unit_tier)
@@ -65,7 +65,7 @@ class UnitsRVAdapter(private val context: Context, private val units : JSONArray
             "Veigar" -> "https://cdn.lolchess.gg/upload/images/champions/Veigar_1643779403.png"
             "Zeri" -> "https://cdn.lolchess.gg/upload/images/champions/Zeri_1643374799.png"
             "Zyra" -> "https://cdn.lolchess.gg/upload/images/champions/Zyra_1634785008.png"
-            else -> "${const.championIcon}$unitName.png"
+            else -> "${tft.championIcon}$unitName.png"
         }
         Glide.with(context)//유닛 아이콘
             .load(url)
@@ -148,16 +148,16 @@ class UnitsRVAdapter(private val context: Context, private val units : JSONArray
         //유닛 티어 이미지
         val rarity = JSONObject(units[position].toString()).get("rarity").toString()
         val tier = JSONObject(units[position].toString()).get("tier").toString()
-        url = const.championStars + "cost${rarity.toInt()+1}_stars${tier}" + ".png"
+        url = tft.championStars + "cost${rarity.toInt()+1}_stars${tier}" + ".png"
         Glide.with(context)//소환사 아이콘
             .load(url)
             .into(holder.imgUnitTier)
         when (rarity.toInt()) {
-            0-> holder.imgUnit.foreground = ContextCompat.getDrawable(context, R.drawable.rarity1_rounded)
-            1-> holder.imgUnit.foreground = ContextCompat.getDrawable(context, R.drawable.rarity2_rounded)
-            2-> holder.imgUnit.foreground = ContextCompat.getDrawable(context, R.drawable.rarity3_rounded)
-            3-> holder.imgUnit.foreground = ContextCompat.getDrawable(context, R.drawable.rarity4_rounded)
-            4-> holder.imgUnit.foreground = ContextCompat.getDrawable(context, R.drawable.rarity5_rounded)
+            0-> holder.imgUnit.foreground = ContextCompat.getDrawable(context, R.drawable.rarity1_rounded) // 1코스트 유닛
+            1-> holder.imgUnit.foreground = ContextCompat.getDrawable(context, R.drawable.rarity2_rounded) // 2코스트 유닛
+            2-> holder.imgUnit.foreground = ContextCompat.getDrawable(context, R.drawable.rarity3_rounded) // 3코스트 유닛
+            3-> holder.imgUnit.foreground = ContextCompat.getDrawable(context, R.drawable.rarity4_rounded) // 4코스트 유닛
+            4-> holder.imgUnit.foreground = ContextCompat.getDrawable(context, R.drawable.rarity5_rounded) // 5코스트 유닛
         }
 
     }

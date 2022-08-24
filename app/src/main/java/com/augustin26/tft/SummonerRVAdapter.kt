@@ -21,7 +21,7 @@ import java.io.IOException
 class SummonerRVAdapter(private val context: Context, private val summonerInfo : Bundle) : RecyclerView.Adapter<SummonerRVAdapter.ViewHolder>() {
 
     val info = JSONArray(summonerInfo.get("info").toString())
-    private val const = Const()
+    private val tft = TFT()
 
 
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -41,7 +41,7 @@ class SummonerRVAdapter(private val context: Context, private val summonerInfo :
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val jsonObject = JSONObject(info[position].toString())
 
-        val url = const.summonerUrlByPuuid + jsonObject.get("puuid").toString() + "?api_key=" + const.key
+        val url = tft.summonerUrlByPuuid + jsonObject.get("puuid").toString() + "?api_key=" + tft.key
         val okHttpClient = OkHttpClient()
         val request = Request.Builder().url(url).build()
 
