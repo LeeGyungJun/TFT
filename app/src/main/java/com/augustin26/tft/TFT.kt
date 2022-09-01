@@ -7,7 +7,7 @@ import timber.log.Timber
 
 class TFT : Application() {
 
-    val key = "RGAPI-cf01c490-4011-42d5-8245-e7e25a5c23ff"
+    val key = " "
     val matchesUrl = "https://asia.api.riotgames.com/tft/match/v1/matches/by-puuid/" ///ids?count=20&api_key=
     val matchUrl = "https://asia.api.riotgames.com/tft/match/v1/matches/" //?api_key=
     val summonerUrl = "https://kr.api.riotgames.com/tft/summoner/v1/summoners/by-name/" //?api_key=
