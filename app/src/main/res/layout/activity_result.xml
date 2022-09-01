@@ -80,6 +80,7 @@
 
                     <Button
                         android:id="@+id/btn_favorite"
+                        android:onClick="@{() -> result.btnFavorite()}"
                         android:text="즐겨찾기"
                         android:textSize="10sp"
                         android:backgroundTint="#FFC107"

@@ -16,12 +16,16 @@ class APIManager {
 
     private lateinit var url : String
     private lateinit var request: Request
-    private lateinit var jsonObject: JSONObject
-    private lateinit var jsonArray: JSONArray
+
+    private var jsonArray: JSONArray = JSONArray("[]")
+    private var jsonObject: JSONObject = JSONObject("{}")
 
     /**
       okhttp에서 동기처리는 execute, 비동기처리는 enqueue
       코루틴 자체가 비동기 처리이기 때문에 execute를 사용해야한다.
+
+      추가로, execute 사용하고 response.body 는 한번만 사용해야한다.
+      로그찍는다고 두번쓰면 에러남
      */
 
     //소환사 puuid
@@ -33,11 +37,7 @@ class APIManager {
         return withContext(Dispatchers.IO) {
             val response = okHttpClient.newCall(request).execute()
             try {
-                if (response.isSuccessful) {
-                    jsonObject = JSONObject(response.body!!.string())
-                }else {
-                    jsonObject = JSONObject(response.body!!.string())
-                }
+                jsonObject = JSONObject(response.body!!.string())
             } catch (e: Exception) {
                 Log.e("getSummonerPuuid", "$e")
             }
@@ -53,15 +53,12 @@ class APIManager {
 
         return withContext(Dispatchers.IO) {
             val response = okHttpClient.newCall(request).execute()
+            val body = response.body!!.string()
             try {
-                val body = response.body!!.string()
-                if (response.isSuccessful) {
-                    jsonObject = JSONObject(JSONArray(body)[0].toString())
-                }else {
-                    jsonObject = JSONObject(JSONArray(body)[0].toString())
-                }
+                jsonObject = JSONObject(JSONArray(body)[0].toString())
             } catch (e: Exception) {
-                Log.e("getSummonerPuuid", "$e")
+                jsonObject = JSONObject(body)
+                Log.e("getEntry", "$e")
             }
             jsonObject
         }
@@ -69,18 +66,14 @@ class APIManager {
 
     //소환사 경기기록
     suspend fun getMatches(puuid: String) : JSONArray {
-        url = tft.matchesUrl + puuid + "/ids?count=" + count + "&api_key=" + tft.key
+        url = tft.matchesUrl + puuid + "ids?count=" + count + "&api_key=" + tft.key
         request = Request.Builder().url(url).build()
         Timber.d(url)
 
         return withContext(Dispatchers.IO) {
             val response = okHttpClient.newCall(request).execute()
             try {
-                if (response.isSuccessful) {
-                    jsonArray = JSONArray(response.body!!.string())
-                }else {
-                    jsonArray = JSONArray(response.body!!.string())
-                }
+                jsonArray = JSONArray(response.body!!.string())
             } catch (e: Exception) {
                 Log.e("getMatches", "$e")
             }
@@ -97,11 +90,7 @@ class APIManager {
         return withContext(Dispatchers.IO) {
             val response = okHttpClient.newCall(request).execute()
             try {
-                if (response.isSuccessful) {
-                    jsonObject = JSONObject(response.body!!.string())
-                }else {
-                    jsonObject = JSONObject(response.body!!.string())
-                }
+                jsonObject = JSONObject(response.body!!.string())
             } catch (e: Exception) {
                 Log.e("getMatch", "$e")
             }

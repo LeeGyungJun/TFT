@@ -17,36 +17,22 @@ import org.json.JSONException
 import org.json.JSONObject
 import java.util.*
 
-class MainActivity : AppCompatActivity(), FavoriteClickInterface, FavoriteDeleteInterface  {
+class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),FavoriteClickInterface,FavoriteDeleteInterface {
 
-    private lateinit var binding : ActivityMainBinding
     private lateinit var viewModal: SummonerViewModal
     private var isRunning = false //검색중일 때 버튼막는 flag
     private lateinit var summonerInfo : Bundle //ResultActivity로 넘길 Bundle
-
     private lateinit var apiManager : APIManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
-
         apiManager = APIManager()
-
-        binding.btnOk.setOnClickListener { //검색버튼
-            if (binding.edtSummoner.text.isNullOrBlank()) return@setOnClickListener //검색어가 없으면 리턴
-            if (!isRunning) { //검색중이 아니면 실행
-                summonerInfo = Bundle() //번들을 새로 초기화
-                binding.progressCircular.visibility = View.VISIBLE // progressbar 돌리기
-                isRunning = true //검색중으로 바꿈
-
-                doSearch(binding.edtSummoner.text.toString()) //검색 시작
-            }
+        val favoriteRVAdapter = FavoriteRVAdapter(this, this) //즐겨찾기 어댑터 초기화
+        binding.apply {
+            favoriteRecyclerview.layoutManager = LinearLayoutManager(applicationContext) //리사이클러뷰 레이아웃매니저 초기화
+            (favoriteRecyclerview.layoutManager as LinearLayoutManager).orientation = LinearLayoutManager.HORIZONTAL //레이아웃매니저의 orientation 변경
+            favoriteRecyclerview.adapter = favoriteRVAdapter //리사이클러뷰에 어댑터 설정
         }
-
-        binding.favoriteRecyclerview.layoutManager = LinearLayoutManager(this) //리사이클러뷰 레이아웃매니저 초기화
-        (binding.favoriteRecyclerview.layoutManager as LinearLayoutManager).orientation = LinearLayoutManager.HORIZONTAL //레이아웃매니저의 orientation 변경
-        val favoriteRVAdapter = FavoriteRVAdapter( this, this) //즐겨찾기 어댑터 초기화
-        binding.favoriteRecyclerview.adapter = favoriteRVAdapter //리사이클러뷰에 어댑터 설정
         viewModal = ViewModelProvider(this, ViewModelProvider.AndroidViewModelFactory.getInstance(application))[SummonerViewModal::class.java] //뷰모델 초기화
         viewModal.allSummoners.observe(this, Observer { list -> //옵저버 달기
             list?.let {
@@ -62,8 +48,10 @@ class MainActivity : AppCompatActivity(), FavoriteClickInterface, FavoriteDelete
             println("에러 내용: $exception")
             if (isRunning) {
                 isRunning = false
-                binding.progressCircular.visibility = View.INVISIBLE
-                Toast.makeText(applicationContext, exception.message, Toast.LENGTH_SHORT).show()
+                runOnUiThread {
+                    binding.progressCircular.visibility = View.INVISIBLE
+                    Toast.makeText(applicationContext, exception.message, Toast.LENGTH_SHORT).show()
+                }
             }
         }
         CoroutineScope(Dispatchers.IO+ceh).launch {
@@ -93,26 +81,21 @@ class MainActivity : AppCompatActivity(), FavoriteClickInterface, FavoriteDelete
             }
             val result2 = withContext(scope) {
                 val entry = apiManager.getEntry(result1.optString("id"))
-                summonerInfo.putString("tier", entry.optString("tier"))
-                summonerInfo.putString("rank", entry.optString("rank"))
-                summonerInfo.putString("leaguePoints", entry.optString("leaguePoints"))
-                if (!entry.optString("status").isNullOrBlank()) {
+                if (entry.optString("status").isNullOrBlank()) {
+                    summonerInfo.putString("tier", entry.optString("tier"))
+                    summonerInfo.putString("rank", entry.optString("rank"))
+                    summonerInfo.putString("leaguePoints", entry.optString("leaguePoints"))
+                }else {
                     isRunning = false
                     runOnUiThread {
                         binding.progressCircular.visibility = View.INVISIBLE
                         Toast.makeText(applicationContext, R.string.summoner_entry_error, Toast.LENGTH_SHORT).show()
                     }
+
                 }
                 withContext(Dispatchers.Default) {
-                    val matches = apiManager.getMatches(result1.optString("puuid"))[0].toString() //첫 번쩨 경기만
-                    if (matches.isBlank()) {
-                        isRunning = false
-                        runOnUiThread {
-                            binding.progressCircular.visibility = View.INVISIBLE
-                            Toast.makeText(applicationContext, R.string.matches_search_error, Toast.LENGTH_SHORT).show()
-                        }
-                    }
-                    matches
+                    // 성공시엔 jsonArray로, 실패시엔 jsonObject로 리턴됨..
+                    apiManager.getMatches(result1.optString("puuid"))[0].toString() //첫 번쩨 경기만
                 }
             }
             val match = apiManager.getMatch(result2)
@@ -151,7 +134,9 @@ class MainActivity : AppCompatActivity(), FavoriteClickInterface, FavoriteDelete
             summonerInfo.putString("info", sortedJsonArray.toString())
             summonerInfo.putString("participants", participantsUUID.toString())
             Logger.d(match)
-            runOnUiThread { binding.progressCircular.visibility = View.INVISIBLE }
+            runOnUiThread {
+                binding.progressCircular.visibility = View.INVISIBLE
+            }
             val intent = Intent(applicationContext, ResultActivity::class.java)
             intent.putExtra("summonerInfo", summonerInfo)
             startActivity(intent)
@@ -172,6 +157,17 @@ class MainActivity : AppCompatActivity(), FavoriteClickInterface, FavoriteDelete
             isRunning = true
 
             doSearch(summoner.name)
+        }
+    }
+
+    fun btnOK() {
+        if (binding.edtSummoner.text.isNullOrBlank()) return //검색어가 없으면 리턴
+        if (!isRunning) { //검색중이 아니면 실행
+            summonerInfo = Bundle() //번들을 새로 초기화
+            binding.progressCircular.visibility = View.VISIBLE // progressbar 돌리기
+            isRunning = true //검색중으로 바꿈
+
+            doSearch(binding.edtSummoner.text.toString()) //검색 시작
         }
     }
 }
