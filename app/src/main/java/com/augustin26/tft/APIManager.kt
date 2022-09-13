@@ -66,7 +66,7 @@ class APIManager {
 
     //소환사 경기기록
     suspend fun getMatches(puuid: String) : JSONArray {
-        url = tft.matchesUrl + puuid + "ids?count=" + count + "&api_key=" + tft.key
+        url = tft.matchesUrl + puuid + "/ids?count=" + count + "&api_key=" + tft.key
         request = Request.Builder().url(url).build()
         Timber.d(url)
 
